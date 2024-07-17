@@ -220,13 +220,13 @@ def main():
 		
 		leg.Draw()	
 
-		plotPad.SetBottomMargin(0)
+		plotPad.SetBottomMargin(0.03)
 		plotPad.SetTopMargin(0.06)
 		
 		plotPad.RedrawAxis()
 	
 		ratioPad.cd()
-		ratioPad.SetTopMargin(0)
+		ratioPad.SetTopMargin(0.03)
 		ratioPad.SetBottomMargin(0.4)
 		frame = ratioPad.DrawFrame(2,0.75,10,1.25,";probe muon p_{T} [GeV]; Data / MC")
 		
@@ -355,12 +355,12 @@ def main():
 	#latex.DrawLatex(0.4,0.8,absetaLabels[abseta])		
 	leg.Draw()	
 
-	plotPad.SetBottomMargin(0)
+	plotPad.SetBottomMargin(0.03)
 	plotPad.SetTopMargin(0.06)
 	plotPad.RedrawAxis()
 
 	ratioPad.cd()
-	ratioPad.SetTopMargin(0)
+	ratioPad.SetTopMargin(0.03)
 	ratioPad.SetBottomMargin(0.4)
 	frame = ratioPad.DrawFrame(-2.4,0.5,2.4,1.5,";probe muon #eta; Data / MC")
 	
