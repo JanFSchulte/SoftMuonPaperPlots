@@ -57,15 +57,15 @@ def ratio(data, mc):
 		
 	return deepcopy(graph)
 	
-def lumiWeightedAverageVsEta(id):
+def lumiWeightedAverageVsEta(id,pt):
 
 	
 	mainPath = "plots/muon/generalTracks/JPsi/Run%s/NUM_%s_DEN_TrackerMuons/efficiency/"
 
-	f2022 = ROOT.TFile("softMuonMVA2022New/" + mainPath%("2022",id) + "NUM_%s_DEN_TrackerMuons_pt2_1_vs_eta.root"%(id), "OPEN")
-	f2022EE = ROOT.TFile("softMuonMVA2022_EENew/" + mainPath%("2022_EE",id) + "NUM_%s_DEN_TrackerMuons_pt2_1_vs_eta.root"%(id), "OPEN")
-	f2023 = ROOT.TFile("softMuonMVA2023New/" + mainPath%("2023",id) + "NUM_%s_DEN_TrackerMuons_pt2_1_vs_eta.root"%(id), "OPEN")
-	f2023BPix = ROOT.TFile("softMuonMVA2023_BPixNew/" + mainPath%("2023_BPix",id) + "NUM_%s_DEN_TrackerMuons_pt2_1_vs_eta.root"%(id), "OPEN")
+	f2022 = ROOT.TFile("softMuonMVA2022SplitEta/" + mainPath%("2022",id) + "NUM_%s_DEN_TrackerMuons_pt2_%s_vs_eta.root"%(id,pt), "OPEN")
+	f2022EE = ROOT.TFile("softMuonMVA2022_EESplitEta/" + mainPath%("2022_EE",id) + "NUM_%s_DEN_TrackerMuons_pt2_%s_vs_eta.root"%(id,pt), "OPEN")
+	f2023 = ROOT.TFile("softMuonMVA2023SplitEta/" + mainPath%("2023",id) + "NUM_%s_DEN_TrackerMuons_pt2_%s_vs_eta.root"%(id,pt), "OPEN")
+	f2023BPix = ROOT.TFile("softMuonMVA2023_BPixSplitEta/" + mainPath%("2023_BPix",id) + "NUM_%s_DEN_TrackerMuons_pt2_%s_vs_eta.root"%(id,pt), "OPEN")
 
 	g2022 = f2022.Get("g_1_Simulation")
 	g2022EE = f2022EE.Get("g_1_Simulation")
@@ -109,7 +109,7 @@ def main():
 
 
 	ids = ["softMVARun3XGBSoft", "softMVARun3XGBLoose", "softMVARun3XGBMedium", "softMVARun3XGBTight"]
-	idNames = {"softMVARun3XGBSoft": "Soft Working Point", "softMVARun3XGBLoose": "Loose Working Point", "softMVARun3XGBMedium": "Medium Working Point", "softMVARun3XGBTight": "Tight Working Point"}
+	idNames = {"softMVARun3XGBSoft": "Soft working point", "softMVARun3XGBLoose": "Loose working point", "softMVARun3XGBMedium": "Medium working point", "softMVARun3XGBTight": "Tight working point"}
 	idColors = {"softMVARun3XGBSoft": ROOT.TColor.GetColor("#5790fc"), "softMVARun3XGBLoose": ROOT.TColor.GetColor("#f89c20"), "softMVARun3XGBMedium": ROOT.TColor.GetColor("#e42536"), "softMVARun3XGBTight": ROOT.TColor.GetColor("#964a8b")}
 	idMarkers = {"softMVARun3XGBSoft": 20, "softMVARun3XGBLoose": 21, "softMVARun3XGBMedium": 22, "softMVARun3XGBTight": 33}
 	idMarkersMC = {"softMVARun3XGBSoft": 24, "softMVARun3XGBLoose": 25, "softMVARun3XGBMedium": 26, "softMVARun3XGBTight": 27}
@@ -123,7 +123,7 @@ def main():
 	}
 	
 
-	resultPath = "softMuonMVARun3New/"
+	resultPath = "softMuonMVARun3SplitEta/"
 	mainPath = "plots/muon/generalTracks/JPsi/Run3/NUM_%s_DEN_TrackerMuons/efficiency/"
 
 	
@@ -136,16 +136,17 @@ def main():
 		yMax = 1.2
 
 		yLabel = 'Muon ID efficiency'
-		frame = plotPad.DrawFrame(2,0.3,10,1.5,";probe muon p_{T} [GeV]; %s"%yLabel)
+		frame = plotPad.DrawFrame(3,0.4,10,1.25,";Probe muon p_{T} [GeV]; %s"%yLabel)
 		frame.GetYaxis().SetTitleFont(42)
-		frame.GetYaxis().SetTitleSize(0.05)
-		frame.GetYaxis().SetTitleOffset(1.35)
+		frame.GetYaxis().SetTitleSize(0.08)
+		frame.GetYaxis().SetTitleOffset(0.9)
 		frame.GetYaxis().SetLabelFont(42)
 		frame.GetYaxis().SetLabelSize(0.06)
 		frame.GetXaxis().SetTitleSize(0.0)
 		frame.GetXaxis().SetLabelSize(0.0)
 
-		leg = ROOT.TLegend(0.5, 0.58, 0.92, 0.9,"#splitline{Data: solid markers and lines}{MC: open markers, dashed lines}","brNDC")
+		leg = ROOT.TLegend(0.425, 0.65, 0.92, 0.925,"#splitline{Data: solid markers and lines}{MC: open markers, dashed lines}","brNDC")
+		leg.SetNColumns(2)
 		leg.SetFillColor(10)
 		leg.SetFillStyle(0)
 		leg.SetLineColor(10)
@@ -155,7 +156,7 @@ def main():
 		dummyHistData.SetMarkerSize(0)
 		dummyHistData.SetLineWidth(0)
 
-		leg.AddEntry(dummyHistData, "", 'pe')
+		#leg.AddEntry(dummyHistData, "", 'pe')
 				
 		histsData = []
 		histsMC = []
@@ -168,6 +169,15 @@ def main():
 		for i in range(0,len(ids)):
 			id = ids[i]
 			histData = histsData[i]
+
+			for y in range(0, histData.GetN()):
+				exLow = histData.GetErrorXlow(y) 
+				exHigh = histData.GetErrorXhigh(y) 
+				eyLow = histData.GetErrorYlow(y)
+				eyHigh = histData.GetErrorYhigh(y)
+				print (eyLow, eyHigh)
+				if eyLow > 0.1 or eyHigh > 0.1:
+					histData.SetPointError(y, exLow, exHigh, 0.003, 0.003)			
 			histMC = histsMC[i]
 			histData.SetLineColor(idColors[id])
 			histData.SetMarkerColor(idColors[id])
@@ -205,7 +215,7 @@ def main():
 		else:
 			yLabelPos = 0.77
 
-		latexCMSExtra.DrawLatex(0.19,yLabelPos,"%s"%(cmsExtra))				
+		#latexCMSExtra.DrawLatex(0.19,yLabelPos,"%s"%(cmsExtra))				
 
 		
 		latexEta = ROOT.TLatex()
@@ -228,7 +238,7 @@ def main():
 		ratioPad.cd()
 		ratioPad.SetTopMargin(0.03)
 		ratioPad.SetBottomMargin(0.4)
-		frame = ratioPad.DrawFrame(2,0.75,10,1.25,";probe muon p_{T} [GeV]; Data / MC")
+		frame = ratioPad.DrawFrame(3,0.75,10,1.25,";Probe muon p_{T} [GeV]; Data / MC")
 		
 		frame.GetYaxis().SetTitle("Data/MC")
 		frame.GetXaxis().SetNoExponent(0)
@@ -239,8 +249,8 @@ def main():
 		frame.GetXaxis().SetLabelOffset(0.01)
 		frame.GetXaxis().SetLabelFont(42)
 		frame.GetXaxis().SetLabelSize(0.17)				
-		frame.GetYaxis().SetTitleOffset(0.55)
-		frame.GetYaxis().SetTitleSize(0.12)
+		frame.GetYaxis().SetTitleOffset(0.42)
+		frame.GetYaxis().SetTitleSize(0.18)
 		frame.GetYaxis().SetTitleFont(42)
 		frame.GetYaxis().SetLabelSize(0.14)    
 		frame.GetYaxis().SetLabelOffset(0.007)    
@@ -248,7 +258,7 @@ def main():
 		frame.GetYaxis().SetNdivisions(505)  
 		
 		
-		l = ROOT.TLine(2,1,10,1)
+		l = ROOT.TLine(3,1,10,1)
 		l.SetLineStyle(ROOT.kDashed)
 		l.Draw("same")
 
@@ -271,140 +281,157 @@ def main():
 		canv.Print("SoftMuonEff_XGBWPs_abseta_%s_Run3.pdf"%(abseta))
 		canv.Print("SoftMuonEff_XGBWPs_abseta_%s_Run3.png"%(abseta))
 		
+	ptbins = ["1","2"]
+	ptLabels = {
+		"1":"3 < p_{T} < 6 GeV",
+		"2":"p_{T} > 6 GeV",
+	}
+	
+	for pt in ptbins:		
+	
+		plotPad.cd()
+		plotPad.SetLogx(0)
+		plotPad.SetLogy(0)
+		yMax = 1.2
+
+		yLabel = 'Muon ID efficiency'
+		frame = plotPad.DrawFrame(-2.4,0.35,2.4,1.25,";Probe muon #eta; %s"%yLabel)
+		frame.GetYaxis().SetTitleFont(42)
+		frame.GetYaxis().SetTitleSize(0.08)
+		frame.GetYaxis().SetTitleOffset(0.9)
+		frame.GetYaxis().SetLabelFont(42)
+		frame.GetYaxis().SetLabelSize(0.06)
+		frame.GetXaxis().SetTitleSize(0.0)
+		frame.GetXaxis().SetLabelSize(0.0)
+
+		leg = ROOT.TLegend(0.425, 0.65, 0.92, 0.925,"#splitline{Data: solid markers and lines}{MC: open markers, dashed lines}","brNDC")
+		leg.SetNColumns(2)
+		leg.SetFillColor(10)
+		leg.SetFillStyle(0)
+		leg.SetLineColor(10)
+		leg.SetShadowColor(0)
+
+		dummyHistData = ROOT.TH1F()
+		dummyHistData.SetMarkerSize(0)
+		dummyHistData.SetLineWidth(0)
+
+		#leg.AddEntry(dummyHistData, "", 'pe')
+
+		histsData = []
+		histsMC = []
+		for id in ids:
+			
+			f = ROOT.TFile(resultPath + mainPath%(id) + "NUM_%s_DEN_TrackerMuons_pt2_%s_vs_eta.root"%(id,pt), "OPEN")
+			histsData.append(deepcopy(f.Get("g_0_Data").Clone(id)))
+			histsMC.append(deepcopy(lumiWeightedAverageVsEta(id,pt)))
+
+		for i in range(0,len(ids)):
+			id = ids[i]
+			histData = histsData[i]
+			histMC = histsMC[i]
+			histData.SetLineColor(idColors[id])
+			histData.SetMarkerColor(idColors[id])
+			histMC.SetLineColor(idColors[id])
+			histMC.SetMarkerColor(idColors[id])
+			histMC.SetLineStyle(ROOT.kDashed)
+			histMC.SetMarkerStyle(idMarkersMC[id])
+			histData.SetMarkerStyle(idMarkers[id])
+
+			leg.AddEntry(histData, idNames[id], "pe")
+			# ~ leg.AddEntry(histMC, idNames[id] + " MC", "pe")
+			
+			histData.Draw("samepe")
+			histMC.Draw("samepe")
+
+		latex = ROOT.TLatex()
+		latex.SetTextFont(42)
+		latex.SetTextAlign(31)
+		latex.SetTextSize(0.05)
+		latex.SetNDC(True)
+		latexCMS = ROOT.TLatex()
+		latexCMS.SetTextFont(61)
+		latexCMS.SetTextSize(0.08)
+		latexCMS.SetNDC(True)
+		latexCMSExtra = ROOT.TLatex()
+		latexCMSExtra.SetTextFont(52)
+		latexCMSExtra.SetTextSize(0.05)
+		latexCMSExtra.SetNDC(True) 
+			
+		latex.DrawLatex(0.95, 0.95, "62.5 fb^{-1} (13.6 TeV)")
 		
-	
-	plotPad.cd()
-	plotPad.SetLogx(0)
-	plotPad.SetLogy(0)
-	yMax = 1.2
+		cmsExtra = "#splitline{Preliminary}{}"
+		latexCMS.DrawLatex(0.19,0.85,"CMS")
+		if "Simulation" in cmsExtra:
+			yLabelPos = 0.77	
+		else:
+			yLabelPos = 0.77	
 
-	yLabel = 'Muon ID efficiency'
-	frame = plotPad.DrawFrame(-2.4,0.3,2.4,1.5,";probe muon #eta; %s"%yLabel)
-	frame.GetYaxis().SetTitleFont(42)
-	frame.GetYaxis().SetTitleSize(0.05)
-	frame.GetYaxis().SetTitleOffset(1.35)
-	frame.GetYaxis().SetLabelFont(42)
-	frame.GetYaxis().SetLabelSize(0.06)
-	frame.GetXaxis().SetTitleSize(0.0)
-	frame.GetXaxis().SetLabelSize(0.0)
+		#latexCMSExtra.DrawLatex(0.19,yLabelPos,"%s"%(cmsExtra))				
 
-	leg = ROOT.TLegend(0.5, 0.58, 0.92, 0.9,"#splitline{Data: solid markers and lines}{MC: open markers, dashed lines}","brNDC")
-	leg.SetFillColor(10)
-	leg.SetFillStyle(0)
-	leg.SetLineColor(10)
-	leg.SetShadowColor(0)
-
-	dummyHistData = ROOT.TH1F()
-	dummyHistData.SetMarkerSize(0)
-	dummyHistData.SetLineWidth(0)
-
-	leg.AddEntry(dummyHistData, "", 'pe')
-
-	histsData = []
-	histsMC = []
-	for id in ids:
+		latexEta = ROOT.TLatex()
+		latexEta.SetTextFont(42)
+		latexEta.SetTextAlign(31)
+		latexEta.SetTextSize(0.06)
+		latexEta.SetNDC(True)		
+		if pt == "1":
+			latexEta.DrawLatex(0.44,0.7,ptLabels[pt])		
+		else:
+			latexEta.DrawLatex(0.38,0.7,ptLabels[pt])	
 		
-		f = ROOT.TFile(resultPath + mainPath%(id) + "NUM_%s_DEN_TrackerMuons_pt2_1_vs_eta.root"%(id), "OPEN")
-		histsData.append(deepcopy(f.Get("g_0_Data").Clone(id)))
-		histsMC.append(deepcopy(lumiWeightedAverageVsEta(id)))
 
-	for i in range(0,len(ids)):
-		id = ids[i]
-		histData = histsData[i]
-		histMC = histsMC[i]
-		histData.SetLineColor(idColors[id])
-		histData.SetMarkerColor(idColors[id])
-		histMC.SetLineColor(idColors[id])
-		histMC.SetMarkerColor(idColors[id])
-		histMC.SetLineStyle(ROOT.kDashed)
-		histMC.SetMarkerStyle(21)
+		#latex.DrawLatex(0.4,0.8,absetaLabels[abseta])		
+		leg.Draw()	
 
-		leg.AddEntry(histData, idNames[id], "pe")
-		# ~ leg.AddEntry(histMC, idNames[id] + " MC", "pe")
+		plotPad.SetBottomMargin(0.03)
+		plotPad.SetTopMargin(0.06)
+		plotPad.RedrawAxis()
+
+		ratioPad.cd()
+		ratioPad.SetTopMargin(0.03)
+		ratioPad.SetBottomMargin(0.4)
+		frame = ratioPad.DrawFrame(-2.4,0.6,2.4,1.25,";Probe muon #eta; Data / MC")
 		
-		histData.Draw("samepe")
-		histMC.Draw("samepe")
-
-	latex = ROOT.TLatex()
-	latex.SetTextFont(42)
-	latex.SetTextAlign(31)
-	latex.SetTextSize(0.05)
-	latex.SetNDC(True)
-	latexCMS = ROOT.TLatex()
-	latexCMS.SetTextFont(61)
-	latexCMS.SetTextSize(0.08)
-	latexCMS.SetNDC(True)
-	latexCMSExtra = ROOT.TLatex()
-	latexCMSExtra.SetTextFont(52)
-	latexCMSExtra.SetTextSize(0.05)
-	latexCMSExtra.SetNDC(True) 
+		frame.GetYaxis().SetTitle("Data/MC")
+		frame.GetXaxis().SetNoExponent(0)
+		frame.GetXaxis().SetTitleFont(42)
+		frame.GetXaxis().SetTitleOffset(0.925)
+		frame.GetXaxis().SetTitleSize(0.18)
+		frame.GetXaxis().SetLabelColor(1)
+		frame.GetXaxis().SetLabelOffset(0.01)
+		frame.GetXaxis().SetLabelFont(42)
+		frame.GetXaxis().SetLabelSize(0.17)				
+		frame.GetYaxis().SetTitleOffset(0.42)
+		frame.GetYaxis().SetTitleSize(0.18)
+		frame.GetYaxis().SetTitleFont(42)
+		frame.GetYaxis().SetLabelSize(0.14)    
+		frame.GetYaxis().SetLabelOffset(0.007)    
+		frame.GetYaxis().SetLabelFont(42)    
+		frame.GetYaxis().SetNdivisions(505)  
 		
-	latex.DrawLatex(0.95, 0.95, "62.5 fb^{-1} (13.6 TeV)")
-	
-	cmsExtra = "#splitline{Preliminary}{}"
-	latexCMS.DrawLatex(0.19,0.85,"CMS")
-	if "Simulation" in cmsExtra:
-		yLabelPos = 0.77	
-	else:
-		yLabelPos = 0.77	
-
-	latexCMSExtra.DrawLatex(0.19,yLabelPos,"%s"%(cmsExtra))				
-
-	
-
-	#latex.DrawLatex(0.4,0.8,absetaLabels[abseta])		
-	leg.Draw()	
-
-	plotPad.SetBottomMargin(0.03)
-	plotPad.SetTopMargin(0.06)
-	plotPad.RedrawAxis()
-
-	ratioPad.cd()
-	ratioPad.SetTopMargin(0.03)
-	ratioPad.SetBottomMargin(0.4)
-	frame = ratioPad.DrawFrame(-2.4,0.5,2.4,1.5,";probe muon #eta; Data / MC")
-	
-	frame.GetYaxis().SetTitle("Data/MC")
-	frame.GetXaxis().SetNoExponent(0)
-	frame.GetXaxis().SetTitleFont(42)
-	frame.GetXaxis().SetTitleOffset(0.925)
-	frame.GetXaxis().SetTitleSize(0.18)
-	frame.GetXaxis().SetLabelColor(1)
-	frame.GetXaxis().SetLabelOffset(0.01)
-	frame.GetXaxis().SetLabelFont(42)
-	frame.GetXaxis().SetLabelSize(0.17)				
-	frame.GetYaxis().SetTitleOffset(0.55)
-	frame.GetYaxis().SetTitleSize(0.12)
-	frame.GetYaxis().SetTitleFont(42)
-	frame.GetYaxis().SetLabelSize(0.14)    
-	frame.GetYaxis().SetLabelOffset(0.007)    
-	frame.GetYaxis().SetLabelFont(42)    
-	frame.GetYaxis().SetNdivisions(505)  
-	
-	
-	l = ROOT.TLine(-2.4,1,2.4,1)
-	l.SetLineStyle(ROOT.kDashed)
-	l.Draw("same")
-
-
-	ratios = []
-	for i in range(0,len(ids)):
-		id = ids[i]
-		histData = histsData[i]
-		histMC = histsMC[i]
-		r = ratio(histData,histMC)
-		r.SetLineColor(idColors[id])
-		r.SetMarkerColor(idColors[id])
-		r.SetMarkerStyle(idMarkers[id])
-		ratios.append(r)
 		
-	for i in range(0,len(ids)):
-		ratios[i].Draw("samepe")
+		l = ROOT.TLine(-2.4,1,2.4,1)
+		l.SetLineStyle(ROOT.kDashed)
+		l.Draw("same")
 
-	
 
-	canv.Print("SoftMuonEff_XGBWPs_Run3_vsEta.pdf")
-	canv.Print("SoftMuonEff_XGBWPs_Run3_vsEta.png")
+		ratios = []
+		for i in range(0,len(ids)):
+			id = ids[i]
+			histData = histsData[i]
+			histMC = histsMC[i]
+			r = ratio(histData,histMC)
+			r.SetLineColor(idColors[id])
+			r.SetMarkerColor(idColors[id])
+			r.SetMarkerStyle(idMarkers[id])
+			ratios.append(r)
+			
+		for i in range(0,len(ids)):
+			ratios[i].Draw("samepe")
+
+		
+
+		canv.Print("SoftMuonEff_XGBWPs_Run3_vsEta_pt%s.pdf"%pt)
+		canv.Print("SoftMuonEff_XGBWPs_Run3_vsEta_pt%s.png"%pt)
 
 	
 	
